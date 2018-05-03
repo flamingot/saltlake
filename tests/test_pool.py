@@ -7,24 +7,11 @@ import logging
 from datetime import datetime
 import thriftpy
 from thriftpy.rpc import client_context
+import thrift_connector.connection_pool as connection_pool
 
 
 _LOG_FILE = 'saltlake.log'
 goods = thriftpy.load("../services/def/goods.thrift", module_name="goods_thrift")
-
-
-class RpcClient():
-
-
-    def __init__(self):
-        pass
-
-
-    def request(self):
-        host,port=("localhost", 8000)
-        with client_context(goods.GoodsService, host, port) as c:
-            response = c.getCategories(3724)
-            print(response)
 
 
 if __name__ == '__main__':
@@ -38,6 +25,12 @@ if __name__ == '__main__':
     logging.info('[client] running at %s' % datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"))
     logging.info('client] ===========================================')
 
-    client=RpcClient()
+    pool = connection_pool.ClientPool(
+        goods.GoodsService,
+        'localhost',
+        8000,
+        connection_class=connection_pool.ThriftPyCyClient
+    )
+
     for i in range(100):
-        client.request()
+        print pool.getCategories(3724)
