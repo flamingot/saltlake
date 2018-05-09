@@ -1,0 +1,2 @@
+thriftpy
+gunicorn_thrift
